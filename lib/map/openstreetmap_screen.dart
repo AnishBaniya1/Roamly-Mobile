@@ -470,6 +470,7 @@ class _OpenstreetmapScreenState extends State<OpenstreetmapScreen> {
         elevation: 0,
         onPressed: _moveToCurrentLocation,
         backgroundColor: Colors.blue,
+        heroTag: 'map_location_fab',
         child: const Icon(Icons.my_location, size: 30, color: Colors.white),
       ),
     );

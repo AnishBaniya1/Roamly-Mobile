@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:roamly_app/core/providers/auth_provider.dart';
 import 'package:roamly_app/core/services/secure_storage.dart';
+import 'package:roamly_app/views/auth/signup_screen.dart';
+import 'package:roamly_app/views/main_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -25,8 +27,6 @@ class _LoginScreenState extends State<LoginScreen> {
 
   // Constants for better maintainability
   static const double _fieldWidth = 350;
-  static const double _topSpacing = 70;
-  static const double _logoSpacing = 40;
   static const double _fieldSpacing = 15;
 
   @override
@@ -74,6 +74,9 @@ class _LoginScreenState extends State<LoginScreen> {
           backgroundColor: Colors.green,
         ),
       );
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (context) => const MainScreen()),
+      );
     } catch (e) {
       if (!mounted) return;
 
@@ -96,199 +99,272 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   void _navigateToSignUp() {
-    // Navigator.of(
-    //   context,
-    // ).pushReplacement(MaterialPageRoute(builder: (context) => SignupPage()));
+    Navigator.of(
+      context,
+    ).pushReplacement(MaterialPageRoute(builder: (context) => SignupScreen()));
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      // Dark blue background
       //// SafeArea prevents overlap with system UI
-      body: SafeArea(
-        //prevents overflow
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 24),
-          child: Form(
-            //Wraps input fields for validation.
-            key: _formKey,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const SizedBox(height: _topSpacing),
-                // TODO: Add your app logo here
-                // Image.asset('assets/images/logo.png', height: 100),
-                const SizedBox(height: _logoSpacing),
-
-                Text(
-                  'LOGIN',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
-                ),
-                const SizedBox(height: 32),
-
-                // Email Input Field
-                ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: _fieldWidth),
-                  child: Consumer<AuthProvider>(
-                    builder: (context, authProvider, child) {
-                      return TextFormField(
-                        controller: _emailController,
-                        keyboardType: TextInputType.emailAddress,
-                        textInputAction: TextInputAction.next,
-                        enabled: !authProvider.isLoading,
-                        validator: _validateEmail,
-                        decoration: InputDecoration(
-                          border: OutlineInputBorder(),
-                          labelText: 'Email',
-                          hintText: 'Enter Your Email',
-                          prefixIcon: Icon(Icons.email_rounded),
-                        ),
-                      );
-                    },
-                  ),
-                ),
-                const SizedBox(height: _fieldSpacing),
-
-                // Password Input Field
-                ConstrainedBox(
-                  constraints: BoxConstraints(maxWidth: _fieldWidth),
-                  child: Consumer<AuthProvider>(
-                    builder: (context, authProvider, child) {
-                      return TextFormField(
-                        controller: _passwordController,
-                        obscureText: _isPasswordHidden,
-                        textInputAction: TextInputAction.done,
-                        // is a property of TextFormField that controls whether the user can interact with the input field
-                        enabled: !authProvider.isLoading,
-                        //onFieldSubmitted is a callback function that gets triggered when the user presses the action button on the keyboard (in this case, the "Done" button).
-                        onFieldSubmitted: (_) => _handleLogin(),
-                        validator: _validatePassword,
-                        decoration: InputDecoration(
-                          border: OutlineInputBorder(),
-                          labelText: 'Password',
-                          hintText: 'Enter Your Password',
-                          prefixIcon: const Icon(Icons.lock),
-                          suffixIcon: IconButton(
-                            onPressed: () {
-                              setState(() {
-                                _isPasswordHidden = !_isPasswordHidden;
-                              });
-                            },
-                            icon: Icon(
-                              _isPasswordHidden
-                                  ? Icons.visibility_off
-                                  : Icons.visibility,
-                            ),
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                ),
-                const SizedBox(height: 16),
-
-                // Forgot Password
-                ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: _fieldWidth),
-                  child: Align(
-                    alignment: Alignment.centerRight,
-                    child: Consumer<AuthProvider>(
-                      builder: (context, authProvider, child) {
-                        return TextButton(
-                          onPressed: authProvider.isLoading
-                              ? null
-                              : _navigateToForgotPassword,
-                          child: const Text(
-                            'Forgot Password?',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 24),
-
-                // Login Button
-                ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: _fieldWidth),
-                  child: Consumer<AuthProvider>(
-                    builder: (context, authProvider, child) {
-                      return SizedBox(
-                        height: 50,
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.deepPurple,
-                            foregroundColor: Colors.white,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                            disabledBackgroundColor: Colors.grey.shade400,
-                          ),
-                          onPressed: authProvider.isLoading
-                              ? null
-                              : _handleLogin,
-                          child: authProvider.isLoading
-                              ? const SizedBox(
-                                  height: 24,
-                                  width: 24,
-                                  child: CircularProgressIndicator(
-                                    color: Colors.white,
-                                    strokeWidth: 2,
-                                  ),
-                                )
-                              : const Text(
-                                  'LOGIN',
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                        ),
-                      );
-                    },
-                  ),
-                ),
-                const SizedBox(height: 24),
-
-                //Navigation to Signup
-                ConstrainedBox(
-                  constraints: BoxConstraints(maxWidth: _fieldWidth),
-                  child: Consumer<AuthProvider>(
-                    builder: (context, authProvider, child) {
-                      return RichText(
-                        text: TextSpan(
-                          text: "Don't have an account?",
-                          style: TextStyle(
-                            fontSize: 18,
-                            color: Colors.grey[700],
-                          ),
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Color(0xFF0F172A), // slate-900 (top-left)
+              Color(0xFF1E3A8A), // blue-900 (bottom-right)
+            ],
+          ),
+        ),
+        child: SafeArea(
+          //prevents overflow
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              return SingleChildScrollView(
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                  child: IntrinsicHeight(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 24),
+                      child: Form(
+                        //Wraps input fields for validation.
+                        key: _formKey,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            TextSpan(
-                              text: 'Sign Up',
+                            const SizedBox(height: 90),
+
+                            // Welcome Title
+                            const Text(
+                              'Welcome to Roamly',
                               style: TextStyle(
-                                fontSize: 18,
+                                fontSize: 28,
                                 fontWeight: FontWeight.bold,
-                                color: authProvider.isLoading
-                                    ? Colors.grey
-                                    : Colors.deepPurple,
-                                decoration: TextDecoration.underline,
+                                color: Colors.white,
                               ),
-                              recognizer: authProvider.isLoading
-                                  ? null
-                                  : _signUpRecognizer,
+                            ),
+                            const SizedBox(height: 8),
+                            const Text(
+                              'Your AI travel companion',
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.white70,
+                              ),
+                            ),
+                            const SizedBox(height: 40),
+
+                            // Login Container
+                            Container(
+                              padding: const EdgeInsets.all(24),
+                              decoration: BoxDecoration(
+                                color: Color.fromARGB(
+                                  255,
+                                  80,
+                                  92,
+                                  127,
+                                ), // Slightly lighter blue
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: Column(
+                                children: [
+                                  // Email Input Field
+                                  Consumer<AuthProvider>(
+                                    builder: (context, authProvider, child) {
+                                      return TextFormField(
+                                        controller: _emailController,
+                                        keyboardType:
+                                            TextInputType.emailAddress,
+                                        textInputAction: TextInputAction.next,
+                                        enabled: !authProvider.isLoading,
+                                        validator: _validateEmail,
+
+                                        decoration: InputDecoration(
+                                          filled: true,
+                                          fillColor: Colors.white,
+                                          border: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(
+                                              12,
+                                            ),
+                                            borderSide: BorderSide.none,
+                                          ),
+                                          hintText: 'Enter Email',
+                                          contentPadding:
+                                              const EdgeInsets.symmetric(
+                                                horizontal: 16,
+                                                vertical: 16,
+                                              ),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                  const SizedBox(height: _fieldSpacing),
+
+                                  // Password Input Field
+                                  Consumer<AuthProvider>(
+                                    builder: (context, authProvider, child) {
+                                      return TextFormField(
+                                        controller: _passwordController,
+                                        obscureText: _isPasswordHidden,
+                                        textInputAction: TextInputAction.done,
+                                        enabled: !authProvider.isLoading,
+                                        onFieldSubmitted: (_) => _handleLogin(),
+                                        validator: _validatePassword,
+
+                                        decoration: InputDecoration(
+                                          filled: true,
+                                          fillColor: Colors.white,
+                                          border: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(
+                                              12,
+                                            ),
+                                            borderSide: BorderSide.none,
+                                          ),
+                                          hintText: 'Enter Password',
+
+                                          contentPadding:
+                                              const EdgeInsets.symmetric(
+                                                horizontal: 16,
+                                                vertical: 16,
+                                              ),
+                                          suffixIcon: IconButton(
+                                            onPressed: () {
+                                              setState(() {
+                                                _isPasswordHidden =
+                                                    !_isPasswordHidden;
+                                              });
+                                            },
+                                            icon: Icon(
+                                              _isPasswordHidden
+                                                  ? Icons.visibility_off
+                                                  : Icons.visibility,
+                                              color: Colors.white70,
+                                            ),
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                  const SizedBox(height: 24),
+
+                                  // Sign In Button
+                                  Consumer<AuthProvider>(
+                                    builder: (context, authProvider, child) {
+                                      return SizedBox(
+                                        width: double.infinity,
+                                        height: 50,
+                                        child: ElevatedButton(
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor: const Color(
+                                              0xFF5C6BC0,
+                                            ),
+                                            foregroundColor: Colors.white,
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(12),
+                                            ),
+                                            disabledBackgroundColor:
+                                                Colors.grey.shade400,
+                                          ),
+                                          onPressed: authProvider.isLoading
+                                              ? null
+                                              : _handleLogin,
+                                          child: authProvider.isLoading
+                                              ? const SizedBox(
+                                                  height: 24,
+                                                  width: 24,
+                                                  child:
+                                                      CircularProgressIndicator(
+                                                        color: Colors.white,
+                                                        strokeWidth: 2,
+                                                      ),
+                                                )
+                                              : const Text(
+                                                  'Sign In',
+                                                  style: TextStyle(
+                                                    fontSize: 19,
+                                                    fontWeight: FontWeight.w600,
+                                                  ),
+                                                ),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                  const SizedBox(height: 16),
+
+                                  // Forgot Password
+                                  Consumer<AuthProvider>(
+                                    builder: (context, authProvider, child) {
+                                      return TextButton(
+                                        onPressed: authProvider.isLoading
+                                            ? null
+                                            : _navigateToForgotPassword,
+                                        child: const Text(
+                                          'Forgot password?',
+                                          style: TextStyle(
+                                            fontSize: 17,
+                                            color: Colors.blue,
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(height: 32),
+
+                            //Navigation to Signup
+                            Consumer<AuthProvider>(
+                              builder: (context, authProvider, child) {
+                                return RichText(
+                                  text: TextSpan(
+                                    text: "Don't have an account? ",
+                                    style: const TextStyle(
+                                      fontSize: 17,
+                                      color: Colors.white70,
+                                    ),
+                                    children: [
+                                      TextSpan(
+                                        text: 'Sign up free',
+                                        style: TextStyle(
+                                          fontSize: 17,
+                                          fontWeight: FontWeight.bold,
+                                          color: authProvider.isLoading
+                                              ? Colors.grey
+                                              : Colors.blue,
+                                        ),
+                                        recognizer: authProvider.isLoading
+                                            ? null
+                                            : _signUpRecognizer,
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              },
+                            ),
+                            const SizedBox(height: 16),
+
+                            // Terms and Privacy
+                            const Text(
+                              'By continuing, you agree to our Terms and Privacy',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.white60,
+                              ),
+                              textAlign: TextAlign.center,
                             ),
                           ],
                         ),
-                      );
-                    },
+                      ),
+                    ),
                   ),
                 ),
-              ],
-            ),
+              );
+            },
           ),
         ),
       ),

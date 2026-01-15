@@ -1,6 +1,6 @@
 class ApiEndpoints {
-  static const String _devUrl = 'http://10.0.2.2:5000';
-  // static const String _devUrl = 'http://192.168.1.4:5000';
+  static const String _devUrl = 'http://10.0.2.2:3000';
+  // static const String _devUrl = 'http://192.168.1.4:3000';
 
   // static const String _prodUrl = '';
   static const String baseUrl = _devUrl;

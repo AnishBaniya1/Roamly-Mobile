@@ -14,7 +14,6 @@ class AuthProvider extends ChangeNotifier {
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
 
-
   Future<void> login({required String email, required String password}) async {
     _isLoading = true;
     _errorMessage = null;
@@ -25,7 +24,14 @@ class AuthProvider extends ChangeNotifier {
       final response = await _authService.login(body: body);
 
       LoginResponseModel loginModel = LoginResponseModel.fromJson(response);
-      // await _storageService.setValue('authtoken', loginModel.token!);
+      await _storageService.setValue(
+        'authtoken',
+        loginModel.body!.data!.accessToken!,
+      );
+      await _storageService.setValue(
+        'refreshtoken',
+        loginModel.body!.data!.refreshToken!,
+      );
       await _storageService.setValue('islogin', 'true');
       _isLoading = false;
       notifyListeners();
@@ -38,21 +44,23 @@ class AuthProvider extends ChangeNotifier {
   }
 
   Future<void> register({
-    required String username,
+    required String name,
     required String email,
     required String password,
+    required String role,
   }) async {
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
     try {
       final body = jsonEncode({
-        'username': username,
+        'username': name,
         'email': email,
         'password': password,
+        'role': role,
       });
 
-      final response = await _authService.register(body: body);
+      await _authService.register(body: body);
       _isLoading = false;
       notifyListeners();
     } catch (e) {
